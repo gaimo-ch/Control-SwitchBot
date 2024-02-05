@@ -6,11 +6,15 @@ import uuid
 import requests
 import getch
 
-# ------------------------------パラメータの生成------------------------------
+# get_id.pyで取得したIDを入力
+bulb_1 = 'https://api.switch-bot.com/v1.1/devices/{deviceID}/commands'
+bulb_2 = 'https://api.switch-bot.com/v1.1/devices/{deviceID}/commands'
 
 # SwitchBotアプリより取得
 token = ''
 secret = ''
+
+# ------------------------------パラメータの生成------------------------------
 
 def gen_secret(secret):
     return bytes(secret, 'utf-8')
@@ -27,35 +31,36 @@ def gen_t():
 def gen_nonce():
     return str(uuid.uuid4())
 
-secret_bytes = gen_secret(secret)
-t = gen_t()
-nonce = gen_nonce()
-sign = gen_sign(secret_bytes, t, nonce)
+def update_parameters():
+    global secret_bytes, t, nonce, sign
+    secret_bytes = gen_secret(secret)
+    t = gen_t()
+    nonce = gen_nonce()
+    sign = gen_sign(secret_bytes, t, nonce)
 
 # -------------------------------Bulbの制御-----------------------------------
 
 def send(command):
-    url = "https://api.switch-bot.com/v1.1/devices/{deviceID}/commands"
-    a = "https://api.switch-bot.com/v1.1/devices/{deviceID}/commands"
+    update_parameters()
     headers = {
-    'Authorization': token,
-    'sign': sign,
-    't': t,
-    'nonce': nonce,
-    'Content-Type': 'application/json; charset=utf8'
+        'Authorization': token,
+        'sign': sign,
+        't': t,
+        'nonce': nonce,
+        'Content-Type': 'application/json; charset=utf8'
     }
     payload = {
-        "command": command,
-        "commandType": "command"
+        'command': command,
+        'commandType': 'command'
     }
 
-    response = requests.post(url, headers=headers, json=payload)
-    response = requests.post(a, headers=headers, json=payload)
+    response = requests.post(bulb_1, headers=headers, json=payload)
+    response = requests.post(bulb_2, headers=headers, json=payload)
 
     if response.status_code == 200:
-        print(f"{command}コマンドを実行したよ")
+        print(f'{command}コマンドを実行したよ')
     else:
-        print(f"エラー: {response.status_code} - {response.text}")
+        print(f'エラー: {response.status_code} - {response.text}')
 
 if __name__ == "__main__":
     try:
@@ -63,12 +68,15 @@ if __name__ == "__main__":
             try:
                 key = getch.getch()
                 if key == '1':
-                    send("turnOff")
+                    send('turnOff')
                 elif key == '2':
-                    send("turnOn")
+                    send('turnOn')
                 else:
-                    print("設定されていない入力を検知!!")
+                    print('設定されていない入力を検知!!')
             except OverflowError:
                 pass
+            except KeyboardInterrupt:
+                print('プログラムを終了するよ')
+                break
     except KeyboardInterrupt:
-        print("プログラムを終了するよ")
+        print('プログラムを終了するよ')

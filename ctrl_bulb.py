@@ -4,7 +4,7 @@ import hmac
 import base64
 import uuid
 import requests
-import getch
+import curses
 
 # get_id.pyで取得したIDを入力
 bulb_1 = 'https://api.switch-bot.com/v1.1/devices/{deviceID}/commands'
@@ -40,7 +40,7 @@ def update_parameters():
 
 # -------------------------------Bulbの制御-----------------------------------
 
-def send(command):
+def send(command, parameter):
     update_parameters()
     headers = {
         'Authorization': token,
@@ -51,6 +51,7 @@ def send(command):
     }
     payload = {
         'command': command,
+        'parameter': parameter,
         'commandType': 'command'
     }
 
@@ -62,21 +63,29 @@ def send(command):
     else:
         print(f'エラー: {response.status_code} - {response.text}')
 
-if __name__ == "__main__":
+def main(stdscr):
     try:
         while True:
-            try:
-                key = getch.getch()
-                if key == '1':
-                    send('turnOff')
-                elif key == '2':
-                    send('turnOn')
-                else:
-                    print('設定されていない入力を検知!!')
-            except OverflowError:
-                pass
-            except KeyboardInterrupt:
-                print('プログラムを終了するよ')
-                break
+            key = stdscr.getch()
+            if key == ord('0'):
+                send('turnOff', 'default')
+            elif key == curses.KEY_ENTER or key == 10:
+                send('setColor', '255:255:255') # 白
+                send('setBrightness', '100')   
+                send('setColorTemperature', '6500')
+            elif key == 9:
+                send('setColor', '255:82:51') # 橙
+                send('setBrightness', '50')
+            elif key == ord('7'):
+                send('setColor', '255:82:51') # 橙・輝度弱め
+                send('setBrightness', '5')     
+            elif key == ord('/'): # tab
+                send('setColor', '138:64:191') # 紫
+                send('setBrightness', '100')   
+            else:
+                print('設定されていない入力を検知!!')
     except KeyboardInterrupt:
         print('プログラムを終了するよ')
+
+if __name__ == "__main__":
+    curses.wrapper(main)

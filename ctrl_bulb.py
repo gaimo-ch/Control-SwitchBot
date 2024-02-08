@@ -5,14 +5,35 @@ import base64
 import uuid
 import requests
 import curses
+from rich.console import Console
+from typing import Optional
+import typer
+import os
+import json
+
+app = typer.Typer()
 
 # get_id.pyで取得したIDを入力
-bulb_1 = 'https://api.switch-bot.com/v1.1/devices/{deviceID}/commands'
-bulb_2 = 'https://api.switch-bot.com/v1.1/devices/{deviceID}/commands'
+bulb_1 = 'https://api.switch-bot.com/v1.1/devices//commands'
+bulb_2 = 'https://api.switch-bot.com/v1.1/devices//commands'
 
-# SwitchBotアプリより取得
-token = ''
-secret = ''
+def load_credentials():
+    credentials_file = "credentials.json"
+    if os.path.exists(credentials_file):
+        with open(credentials_file) as f:
+            credentials = json.load(f)
+            return credentials.get("token"), credentials.get("secret")
+    else:
+        console = Console()
+        console.print("Credentials file not found. Please enter your token and secret.")
+        token = console.input("Token: ")
+        secret = console.input("Secret: ")
+        credentials = {"token": token, "secret": secret}
+        with open(credentials_file, "w") as f:
+            json.dump(credentials, f)
+        return token, secret
+
+token, secret = load_credentials()
 
 # ------------------------------パラメータの生成------------------------------
 

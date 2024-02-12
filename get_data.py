@@ -10,7 +10,9 @@ from rich.console import Console
 from typing import Optional
 import typer
 import os
+
 app = typer.Typer()
+sys.stdout.reconfigure(encoding='utf-8')
 
 def credentials():
     credentials_file = "credentials.json"
@@ -69,8 +71,7 @@ def get_id():
 
     response = requests.get(url, headers=headers)
 
-    # 整形して出力
-    sys.stdout.reconfigure(encoding='utf-8')
+    # 整形して出力する jsonがなければ新規作成する
     if response.status_code == 200:
         id_data = json.dumps(response.json(), indent=2, ensure_ascii=False)
         print(id_data)
@@ -97,12 +98,13 @@ def get_scene():
 
     response = requests.get(url, headers=headers)
 
+    # 整形して出力する jsonがなければ新規作成する
     if response.status_code == 200:
         scene_data = response.json()
         scene_data = json.dumps(response.json(), indent=2, ensure_ascii=False)
         print(scene_data)
         with open('scene_data.json', 'w') as f:
-            json.dump(scene_data, f, indent=2)
+            json.dump(response.json(), f, indent=2)
         print("Scene data saved successfully.")
     else:
         print(f"Error: {response.status_code} - {response.text}")

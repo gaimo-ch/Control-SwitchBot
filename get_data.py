@@ -14,6 +14,8 @@ import os
 app = typer.Typer()
 sys.stdout.reconfigure(encoding='utf-8')
 
+# ------------------------------トークン取得------------------------------
+
 def credentials():
     credentials_file = "credentials.json"
     if os.path.exists(credentials_file):
@@ -32,7 +34,7 @@ def credentials():
 
 token, secret = credentials()
 
-# SwitchBotアプリより取得
+# ------------------------------認証機構------------------------------
 
 def gen_secret(secret):
     return bytes(secret, 'utf-8')
@@ -54,7 +56,12 @@ t = gen_t()
 nonce = gen_nonce()
 sign = gen_sign(secret_bytes, t, nonce)
 
-@app.command('id')
+# -------------------------------データ取得-----------------------------------
+
+def get():
+    get_id()
+    get_scene()
+
 def get_id():
     """
     Save the deviceID data as JSON in the current directory.
@@ -76,12 +83,11 @@ def get_id():
         id_data = json.dumps(response.json(), indent=2, ensure_ascii=False)
         print(id_data)
         with open('id_data.json', 'w') as f:
-            json.dump(response.json(), f, indent=2)
+            json.dump(response.json(), f, indent=2, ensure_ascii=False)
         print("DeviceID data saved successfully.")
     else:
         print(f"Error: {response.status_code} - {response.text}")
     
-@app.command('scene')
 def get_scene():
     """
     Save the scene data as JSON in the current directory.
@@ -100,15 +106,14 @@ def get_scene():
 
     # 整形して出力する jsonがなければ新規作成する
     if response.status_code == 200:
-        scene_data = response.json()
         scene_data = json.dumps(response.json(), indent=2, ensure_ascii=False)
         print(scene_data)
         with open('scene_data.json', 'w') as f:
-            json.dump(response.json(), f, indent=2)
+            json.dump(response.json(), f, indent=2, ensure_ascii=False)
         print("Scene data saved successfully.")
     else:
         print(f"Error: {response.status_code} - {response.text}")
     
 
 if __name__ == '__main__':
-    app()
+    get()

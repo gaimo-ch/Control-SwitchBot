@@ -1,6 +1,9 @@
 <h1 align="center">
     🪄💡Control SwitchBot with API🪄💡
 </h1>
+<h3 align="center">
+    Python 3.12.2 / Debian GNU/Linux 12 / SwitchBot API v1.1
+</h3>
 
 ---
 # 📜 概要
